@@ -13,8 +13,28 @@
  * @brief Construct a new CalculoDE:: CalculoDE object
  * 
  */
-CalculoDE::CalculoDE(tam_var n, tam_var m)
+CalculoDE::CalculoDE(std::vector<char> info)
 {
+	tam_var p = 0;               //Controle de caractere lido do vetor
+	n = salvaInfoInt(info, p);
+	m = salvaInfoInt(info, p);
+
+	s[0] = ' ';
+	r[0] = ' ';
+	s = salvaInfoString(info, p);
+	r = salvaInfoString(info, p);
+
+	for (tam_var i = 0; i <= n; i++)
+    {
+        std::vector<tam_var> v1;
+
+        for (tam_var j = 0; j <= m; j++)
+        {
+            v1.push_back(INT32_MAX);
+        }
+        d.push_back(v1);
+    }
+
     tam_var numADiag,		// Número de anti-diagonais
 		 tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
 		 aD,			// Anti-diagonais numeradas de 2 a numADiag + 1
@@ -23,6 +43,15 @@ CalculoDE::CalculoDE(tam_var n, tam_var m)
 
 	numADiag = n + m - 1;
 	tamMaxADiag = n;
+
+	for (i = 0; i <= n; i++)
+	{
+		d[i][0] = i;
+	}
+	for (j = 1; j <= m; j++)
+	{
+		d[0][j] = j;
+	}
 
 	// Para cada anti-diagonal
 	for (aD = 2; aD <= numADiag + 1; aD++)
@@ -60,4 +89,39 @@ CalculoDE::CalculoDE(tam_var n, tam_var m)
  */
 CalculoDE::~CalculoDE()
 {
+}
+
+tam_var CalculoDE::salvaInfoInt(std::vector<char> info, tam_var &i)
+{
+    std::string *buffer = new std::string(); //String temporaria
+    char c;                                  //Varialver auxiliar
+    do
+    {
+        c = info[i];
+        buffer->push_back(c);
+        i++;
+    } while ((c != ' ') && (c != '\n'));
+    tam_var dado_int = stoi(*buffer); //Converte a string em int
+    delete buffer;                //Deleta string criada
+    return dado_int;
+}
+
+std::string CalculoDE::salvaInfoString(std::vector<char> info, tam_var &i)
+{
+    std::string *buffer = new std::string(); //String temporaria
+    char c;                                  //Varialver auxiliar
+    do
+    {
+        c = info[i];
+        buffer->push_back(c);
+        i++;
+    } while ((c != ' ') && (c != '\n'));
+    std::string dado_string = *buffer;
+    delete buffer;                //Deleta string criada
+    return dado_string;
+}
+
+void CalculoDE::menorQuantEdicao()
+{
+	menorDistEdicao = std::to_string(d[n][m]);
 }

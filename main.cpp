@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "Arquivo.h"
+#include "CalculoDE.h"
 
 using namespace std;
 
@@ -31,6 +32,12 @@ int main(int argc, char *argv[])
     Arquivo arq_entrada(argv[1], 'r'); //Cria um objeto e abre o arquivo passado como parametro
     arq_entrada.Ler();                 //Le os caracteres do arquivo de entrada
 
+    CalculoDE calDE(arq_entrada.buffer);
+    calDE.menorQuantEdicao();  //Armazena o menor distancia de edicao em uma string
+
+    //Imprimir menor distancia de edicao
+    Arquivo arq_saida(argv[2], 'w');
+    arq_saida.Escrever(calDE.menorDistEdicao);
 
     exit(0);
 }
