@@ -20,8 +20,6 @@ CalculoDE::CalculoDE(std::vector<char> info)
 	n = salvaInfoInt(info, p);
 	m = salvaInfoInt(info, p);
 	// salvando sequências do arquivo de entrada
-	s[0] = ' ';
-	r[0] = ' ';
 	s = salvaInfoString(info, p);
 	r = salvaInfoString(info, p);
 
@@ -69,7 +67,7 @@ CalculoDE::CalculoDE(std::vector<char> info)
 			// Se é uma célula válida
 			if (j > 0 && j <= m)
 			{
-				t = (s[i] != r[j] ? 1 : 0);
+				t = (s[i-1] != r[j-1] ? 1 : 0);
 				a = d[i][j-1] + 1;
 				b = d[i-1][j] + 1;
 				c = d[i-1][j-1] + t;
@@ -84,6 +82,20 @@ CalculoDE::CalculoDE(std::vector<char> info)
 			}
 		}
 	}
+
+	/*
+	printf("%s\n", s.c_str());
+	printf("%s\n", r.c_str());
+
+	for(i = 0; i <= n; i++) 
+	{
+		for (j = 0; j <= m; j++)
+		{
+			printf("%u ", d[i][j]);
+		}
+		printf("\n");
+	}
+	*/
 }
 
 /**
