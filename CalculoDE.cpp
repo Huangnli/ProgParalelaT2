@@ -15,15 +15,17 @@
  */
 CalculoDE::CalculoDE(std::vector<char> info)
 {
-	tam_var p = 0;               //Controle de caractere lido do vetor
+	tam_var p = 0;  //Controle de caractere lido do vetor
+	// Salvando tamanho das sequências s e r
 	n = salvaInfoInt(info, p);
 	m = salvaInfoInt(info, p);
-
+	// salvando sequências do arquivo de entrada
 	s[0] = ' ';
 	r[0] = ' ';
 	s = salvaInfoString(info, p);
 	r = salvaInfoString(info, p);
 
+	//Preenche todas as posições da matriz d com "infinito"(maior valor de long int)
 	for (tam_var i = 0; i <= n; i++)
     {
         std::vector<tam_var> v1;
@@ -44,6 +46,7 @@ CalculoDE::CalculoDE(std::vector<char> info)
 	numADiag = n + m - 1;
 	tamMaxADiag = n;
 
+	// Inicializa matriz de distâncias d
 	for (i = 0; i <= n; i++)
 	{
 		d[i][0] = i;
@@ -91,6 +94,13 @@ CalculoDE::~CalculoDE()
 {
 }
 
+/**
+ * @brief Devolver numero que esta no arquivo
+ * 
+ * @param info Vector<char> com as informções lidas do arquivo
+ * @param i Ponteiro com indice da posição do vetor
+ * @return numero Dado lido do vetor
+ */
 tam_var CalculoDE::salvaInfoInt(std::vector<char> info, tam_var &i)
 {
     std::string *buffer = new std::string(); //String temporaria
@@ -106,6 +116,13 @@ tam_var CalculoDE::salvaInfoInt(std::vector<char> info, tam_var &i)
     return dado_int;
 }
 
+/**
+ * @brief Devolver string que esta no arquivo
+ * 
+ * @param info Vector<char> com as informções lidas do arquivo
+ * @param i Ponteiro com indice da posição do vetor
+ * @return string Dado lido do vetor
+ */
 std::string CalculoDE::salvaInfoString(std::vector<char> info, tam_var &i)
 {
     std::string *buffer = new std::string(); //String temporaria

@@ -7,10 +7,10 @@
 class CalculoDE
 {
     private:
-    tam_var n; //Quantidade de linhas
-    tam_var m; //Quantidade de colunas
-    std::string s;
-    std::string r;
+    tam_var n; //Tamanho das sequências s
+    tam_var m; //Tamanho das sequências r
+    std::string s; //Sequências de DNA: cadeias de bases nitrogenadas (A, C, G e T)
+    std::string r; //Sequências de DNA: cadeias de bases nitrogenadas (A, C, G e T)
 
     tam_var salvaInfoInt(std::vector<char> info, tam_var &i);
     std::string salvaInfoString(std::vector<char> info, tam_var &i);
