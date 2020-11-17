@@ -40,14 +40,17 @@ int main(int argc, char *argv[])
     calDE.menorQuantEdicao();  //Armazena o menor distancia de edicao em uma string
 
     gettimeofday(&fim, 0);
-    unsigned long microsegundos = fim.tv_usec - inicio.tv_usec;
+    // Tempo de execução na CPU em milissegundos
+	long segundos = fim.tv_sec - inicio.tv_sec;
+	long microsegundos = fim.tv_usec - inicio.tv_usec;
+	double tempo = (segundos * 1e3) + (microsegundos * 1e-3);
     //Imprimir menor distancia de edicao
     /*
     Arquivo arq_saida(argv[2], 'w');
     arq_saida.Escrever(calDE.menorDistEdicao);
     */
     printf("%s\n", calDE.menorDistEdicao.c_str());
-    printf("Tempo de execução = %.2lums\n", microsegundos);
+    printf("Tempo CPU = %.2lums\n", tempo);
 
     exit(0);
 }
