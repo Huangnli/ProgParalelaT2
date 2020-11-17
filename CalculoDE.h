@@ -1,6 +1,6 @@
 #include <iostream>
-#include <vector>
-#include <string>
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
 
 #define tam_var unsigned int
 
@@ -16,10 +16,10 @@ class CalculoDE
     std::string salvaInfoString(std::vector<char> info, tam_var &i);
 
     public:
-    CalculoDE(std::vector<char> info);
+    __global__ CalculoDE(std::vector<char> info);
     ~CalculoDE();  
 
-    std::vector<std::vector<tam_var>> d; //Matriz
+    thrust::host_vector<thrust::host_vector<tam_var>> d; //Matriz
     std::string menorDistEdicao;
     void menorQuantEdicao();
 };

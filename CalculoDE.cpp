@@ -13,6 +13,7 @@
  * @brief Construct a new CalculoDE:: CalculoDE object
  * 
  */
+__global__ 
 CalculoDE::CalculoDE(std::vector<char> info)
 {
 	tam_var p = 0;  //Controle de caractere lido do vetor
