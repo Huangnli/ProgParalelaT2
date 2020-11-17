@@ -13,7 +13,6 @@
  * @brief Construct a new CalculoDE:: CalculoDE object
  * 
  */
-__global__ 
 CalculoDE::CalculoDE(std::vector<char> info)
 {
 	tam_var p = 0;  //Controle de caractere lido do vetor
@@ -27,7 +26,7 @@ CalculoDE::CalculoDE(std::vector<char> info)
 	//Preenche todas as posições da matriz d com "infinito"(maior valor de long int)
 	for (tam_var i = 0; i <= n; i++)
     {
-        std::vector<tam_var> v1;
+        thrust::host_vector<tam_var> v1;
 
         for (tam_var j = 0; j <= m; j++)
         {
@@ -105,6 +104,10 @@ CalculoDE::CalculoDE(std::vector<char> info)
  */
 CalculoDE::~CalculoDE()
 {
+}
+__global__
+void CalculoDE::CalculaMatrizGPU (){
+
 }
 
 /**

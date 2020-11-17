@@ -14,12 +14,13 @@ class CalculoDE
 
     tam_var salvaInfoInt(std::vector<char> info, tam_var &i);
     std::string salvaInfoString(std::vector<char> info, tam_var &i);
+    void CalculaMatrizGPU ();
 
     public:
-    __global__ CalculoDE(std::vector<char> info);
+    CalculoDE(std::vector<char> info);
     ~CalculoDE();  
 
-    thrust::host_vector<thrust::host_vector<tam_var>> d; //Matriz
+    thrust::host_vector<thrust::host_vector<tam_var>> d ; //Matriz
     std::string menorDistEdicao;
     void menorQuantEdicao();
 };
