@@ -3,11 +3,12 @@
 #                                                 #
 # João Víctor Zárate Pereira Araújo               #
 # Julio Huang                                     #
-# Trabalho 1                                      #
+# Ricardo Abreu                                   #
+# Trabalho 2                                      #
 # Professor(a): Nahri Moreano                     #
 #                                                 #
 ###################################################
-############### Makefile Trabalho 1  ###############
+############### Makefile Trabalho 2  ##############
 OBJ = main.o CalculoDE.o Arquivo.o
 
 all: $(OBJ)
