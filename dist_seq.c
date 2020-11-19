@@ -50,14 +50,14 @@ void distancia_edicao(int n, int m, char *s, char *r, int *d)
 			i = n - k;
 			j = aD - i;
 			
-			// Se é uma célula válida
+			// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
 			if (j > 0 && j <= m)
 			{
 				t = (s[i] != r[j] ? 1 : 0);
-				a = d[(i*(m+1)) + j-1] + 1;
+				a = d[(i*(m+1)) + j-1] + 1; 
 				b = d[(i-1)*(m+1) + j] + 1;
 				c = d[(i-1)*(m+1) + j-1] + t;
-				// Calcula d[i][j] = min(a, b, c)
+				// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 				if (a < b)
 					min = a;
 				else
@@ -68,7 +68,7 @@ void distancia_edicao(int n, int m, char *s, char *r, int *d)
 			}
 		}
 	}
-
+	//imprimir a matriz d
 	for(int i = 0; i <= n; i++)
 	{
         for (int j = 0; j <= m; j++)
@@ -143,7 +143,6 @@ int main(int argc, char **argv)
 	{
 		d[(m*j)+j] = j;
 	}
-	
 
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	distancia_edicao(n, m, s, r, d);
