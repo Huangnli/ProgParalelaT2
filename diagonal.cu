@@ -2,51 +2,69 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-__global__ void imprime(int *d_vetor, int *max_d){
+// __global__ void imprime(int *d_vetor, int *max_d){
     
-    int tid_global = blockIdx.x * blockDim.x + threadIdx.x;
-    //printf("\nComeço do DEVICE 1...\n");
+//     int tid_global = blockIdx.x * blockDim.x + threadIdx.x;
+//     //printf("\nComeço do DEVICE 1...\n");
     
-    __syncthreads();
+//     __syncthreads();
 
-    if (tid_global <= *max_d){
-        //d_vetor[tid_global] += 0;
-        //printf("Na GPU:  %d \n", tid_global);
-        //if (tid_global % 4 == 0)
-          //  printf("\n%d seu bloco: %d\n",d_vetor[tid_global], blockIdx.x);
-        //else
-            //printf("%d seu bloco: %d\n",d_vetor[tid_global], blockIdx.x);
+//     if (tid_global <= *max_d){
+//         //d_vetor[tid_global] += 0;
+//         //printf("Na GPU:  %d \n", tid_global);
+//         //if (tid_global % 4 == 0)
+//           //  printf("\n%d seu bloco: %d\n",d_vetor[tid_global], blockIdx.x);
+//         //else
+//             //printf("%d seu bloco: %d\n",d_vetor[tid_global], blockIdx.x);
+//     }
+    
+// }
+
+int *alocaVetor(int *Matriz, int n, int m){
+    Matriz = (int *) malloc(sizeof(int) * n*m);
+    if(Matriz == NULL){
+        perror("Nao alocou vetor\n"); 
+        exit(1);
     }
     
-}
-
-int *alocaLinhas(int *Matriz, int n, int m){
-    Matriz = (int *) malloc(sizeof(int) * n*m);
     for (int i = 0; i < n*m; i++)
         Matriz[i] = i;
     return Matriz;
 }
 
 
+//Para cada diagonal retornar um vetor com os pontos da diagonal
 int *pegaDi(int *M, int n, int m, int ini){
-    
     int *vec;
-    int i, cont =0;
-    vec = (int *) malloc( sizeof(int) * (ini+1) );
-    // printf("\n valor ini:  %d\n", ini);
+    int i, 
+        cont =0; // contador de celulas da diagonal
+    
+    vec = (int *) malloc( sizeof(int) * (m) );
 
+    // zerando o vetor de diagonais para n ter lixo no vetor
+    for (int i=0; i< m*m;i++){
+        //vec[i] = 0;
+        //printf(" %d", M[i]);
+    }
+
+
+    printf("\n");
     if (vec != NULL)
     {
-        // Inicia no comeco do vetor e vai voltando na matriz
-        for(int i= ini/*ini*m*/; i < m*n; i+=m-1){
-            vec[cont] = M[i];
-            //printf("%d \n", M[i]);
-            //printf("***pegaDi():  %d \n", vec[cont]);
-            cont++;
+        // tamanho maximo da diagonal eh n
+        for(int i= ini; i > 0  && cont < m; i -= m-1){ // Volta m-1 posicoes na matriz para pegar a diagonal
+            if (i < n*m-1){ // Se pertence a matriz
+                vec[cont] = M[i];
+                cont++;
+                printf("na matriz: %2d   i: %2d\n", M[i], i);
+            }
+        }
+
+        for (int i=0; i<cont; i++) {
+            //printf("no vec %d\n", vec[i]);
         }
     }
-    else
-        perror("nao alocou vetor para diagonal\n");
+    
 
     return vec;
 }
@@ -65,7 +83,7 @@ int main(int argc, char *argv[]){
     printf("Digite os numeros de n e m\n");
     scanf("%d %d", &n, &m);
 
-    Matriz = alocaLinhas(Matriz, n ,m);
+    Matriz = alocaVetor(Matriz, n ,m);
 
 
     max     = (int *) malloc(sizeof(int));
@@ -77,58 +95,68 @@ int main(int argc, char *argv[]){
 
     printf("valor do max %d\n", *max);
 
-    // for (int i=0; i <= m+n; i++){
-    //     h_vetor[i] = i;
-    // }
-
-    // for (int i=0; i <= n+m; i+=n){
-    //     h_vetor[n] = i-n;
-    // }
+    for(int i=0; i<n*m; i++){
+        h_vetor[i] = i;
+    }
 
 
     /********* preenchendo *********/
 
     
     //cudaMalloc( (void **)&h_vetor, sizeof(int) * 5);
-    cudaMalloc( (void **)&d_vetor, sizeof(int) * n*m);
-    cudaMalloc( (void **)&max_d  , sizeof(int));
+    // cudaMalloc( (void **)&d_vetor, sizeof(int) * n*m);
+    // cudaMalloc( (void **)&max_d  , sizeof(int));
 
 
-    //cudaMemcpy(d_vetor, h_vetor, sizeof(int) * n*m , cudaMemcpyHostToDevice);
-    cudaMemcpy(d_vetor, Matriz, sizeof(int) * n*m , cudaMemcpyHostToDevice);
-    cudaMemcpy(max_d,   max,    sizeof(int),       cudaMemcpyHostToDevice);
+    // //cudaMemcpy(d_vetor, h_vetor, sizeof(int) * n*m , cudaMemcpyHostToDevice);
+    // cudaMemcpy(d_vetor, Matriz, sizeof(int) * n*m , cudaMemcpyHostToDevice);
+    // cudaMemcpy(max_d,   max,    sizeof(int),       cudaMemcpyHostToDevice);
 
    
     /*CHAMADA DO KERNEL*/
     // Para cada diagonal ja separada mandar para a GPU(mandar sempre 2, pois a primeira diagonal que mandar vai escrever na segunda)
     
     // for (int i=2; i< -1+n+m-4 /*numero de diagonais max validas*/; i++){
-        imprime<<<n, m>>>( d_vetor, max_d); 
+        //imprime<<<n, m>>>( d_vetor, max_d); 
     // }
 
 
-    printf("\n");
+    //printf("\n");
     //cudaDeviceSynchronize();
     
-    cudaMemcpy( h_vetor, d_vetor, sizeof(int) *n*m ,cudaMemcpyDeviceToHost);
+    //cudaMemcpy( h_vetor, d_vetor, sizeof(int) *n*m ,cudaMemcpyDeviceToHost);
 
+
+    // matriz para armazenar as diagonais
     int **vec;
-    vec = (int **) malloc(sizeof(int *) * n+m-1);   // Alocando as diagonais(vetores)
+    vec = (int **) malloc(sizeof(int *) * (n+m-3));   // Alocando a quantidade de diagonais
+
     if (vec == NULL){
         perror("nao alocou a matriz de diagonais\n");
     }
 
-    // Laço para pegar todas as diagonais que seram usadas no calculo
-    // ************************ passou do numero de linhas da da ruim
-    for (int i= 0; i < n+m-1; i++){
-        vec[i] = pegaDi(h_vetor, n, m, i);
-        printf("passou aqui %d \n", i);
+    for(int i=0; i < n; i++){
+        vec[i] = (int *) malloc( sizeof(int) *m);
     }
 
+    
+    // Laço para pegar todas as diagonais que seram usadas no calculo
+    // (n+m-1)-> numero de diagonais totais // usamos (n+m+1) pois i comeca
+    // com 2 que eh a primeira posicao da primeira diagonal que importa
+    // (n+m+1)-2 == n+m-1 
+    for (int i= 2; i < n+m+1; i++){
+
+        // i-2 para comecar no inicio do vetor
+        vec[i-2] = pegaDi(h_vetor, n, m, i*m);
+        //printf("passou aqui %d \n", i);
+    }
+
+    // Impressao do vetor das diagonais
     printf("\n == Diagonais == \n");
-    for(int i=0; i<n; i++){
+    for(int i=0; i<n+m-3; i++){ // -3 pq comeca a contar a partir da diagonal da 2 linha
         for (int j=0; j<m; j++){
-           printf("%3d ", vec[i][j]);
+            //vec[i][j] = i*m +j;
+            printf("%3d ", vec[i][j]);
         }
         printf("\n");
     }
@@ -149,7 +177,7 @@ int main(int argc, char *argv[]){
     //     printf("%d\n", h_vetor[i]);
     // }
 
-    cudaFree(d_vetor);
+    //cudaFree(d_vetor);
 
     printf("HOST terminado!\n");
     return 0;
