@@ -35,16 +35,23 @@ int *alocaVetor(int *Matriz, int n, int m){
 
 //Para cada diagonal retornar um vetor com os pontos da diagonal
 int *pegaDi(int *M, int n, int m, int ini){
+    printf("valor de i: %d", ini);
     int *vec;
+    int aux;
     int i, 
         cont =0; // contador de celulas da diagonal
-    
+
+    ini = ini*m;
+    printf(" valor do vetor %d", ini);
+
     vec = (int *) malloc( sizeof(int) * (m) );
 
     // zerando o vetor de diagonais para n ter lixo no vetor
-    for (int i=0; i< m*m;i++){
-        //vec[i] = 0;
+    if (vec != NULL){
+        for (int i=0; i< n;i++){
+            vec[i] = -1;
         //printf(" %d", M[i]);
+        }
     }
 
 
@@ -52,12 +59,14 @@ int *pegaDi(int *M, int n, int m, int ini){
     if (vec != NULL)
     {
         // tamanho maximo da diagonal eh n
-        for(int i= ini; i > 0  && cont < m; i -= m-1){ // Volta m-1 posicoes na matriz para pegar a diagonal
-            if (i < n*m-1){ // Se pertence a matriz
+        for(int i= ini; (i > 0  && cont < m) && M[i] !=-1; i -= m-1){ // Volta m-1 posicoes na matriz para pegar a diagonal
+            if (i <= n*m-1){ // Se pertence a matriz
                 vec[cont] = M[i];
+                M[i] = -1;
                 cont++;
-                printf("na matriz: %2d   i: %2d\n", M[i], i);
+                //printf("na matriz: %2d   i: %2d\n", M[i], i);
             }
+            //printf("na matriz: %2d   i: %2d\n", M[i], i);
         }
 
         for (int i=0; i<cont; i++) {
@@ -135,26 +144,24 @@ int main(int argc, char *argv[]){
         perror("nao alocou a matriz de diagonais\n");
     }
 
-    for(int i=0; i < n; i++){
+    for(int i=0; i < m; i++){
         vec[i] = (int *) malloc( sizeof(int) *m);
     }
 
     
     // Laço para pegar todas as diagonais que seram usadas no calculo
-    // (n+m-1)-> numero de diagonais totais // usamos (n+m+1) pois i comeca
-    // com 2 que eh a primeira posicao da primeira diagonal que importa
-    // (n+m+1)-2 == n+m-1 
-    for (int i= 2; i < n+m+1; i++){
+    
+    for (int i= 2; i < n+m-1; i++){
 
         // i-2 para comecar no inicio do vetor
-        vec[i-2] = pegaDi(h_vetor, n, m, i*m);
-        //printf("passou aqui %d \n", i);
+        vec[i-2] = pegaDi(h_vetor, n, m, i);
+        printf("passou aqui %d \n", i-2);
     }
 
     // Impressao do vetor das diagonais
     printf("\n == Diagonais == \n");
-    for(int i=0; i<n+m-3; i++){ // -3 pq comeca a contar a partir da diagonal da 2 linha
-        for (int j=0; j<m; j++){
+    for(int i=0; i<n+m-3; i++){     // -3 pq comeca a contar a partir da diagonal da 2 linha
+        for (int j=0; j<m; j++){    // e as diagonais sao n+m-1
             //vec[i][j] = i*m +j;
             printf("%3d ", vec[i][j]);
         }
