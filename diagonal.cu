@@ -44,7 +44,7 @@ int *pegaDi(int *M, int n, int m, int ini){
     ini = ini*m;
     printf(" valor do vetor %d", ini);
 
-    vec = (int *) malloc( sizeof(int) * (m) );
+    vec = (int *) malloc( sizeof(int) * (m-1) );
 
     // zerando o vetor de diagonais para n ter lixo no vetor
     if (vec != NULL){
@@ -59,8 +59,8 @@ int *pegaDi(int *M, int n, int m, int ini){
     if (vec != NULL)
     {
         // tamanho maximo da diagonal eh n
-        for(int i= ini; (i > 0  && cont < m) && M[i] !=-1; i -= m-1){ // Volta m-1 posicoes na matriz para pegar a diagonal
-            if (i <= n*m-1){ // Se pertence a matriz
+        for(int i= ini; (i > 0  && cont < n) && M[i] !=-1; i -= m-1){ // Volta m-1 posicoes na matriz para pegar a diagonal
+            if (i <= n*m-1){ // Se chegou na ultima linha
                 vec[cont] = M[i];
                 M[i] = -1;
                 cont++;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]){
     }
 
     for(int i=0; i < m; i++){
-        vec[i] = (int *) malloc( sizeof(int) *m);
+        vec[i] = (int *) malloc( sizeof(int) *m-1);
     }
 
     
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]){
     // Impressao do vetor das diagonais
     printf("\n == Diagonais == \n");
     for(int i=0; i<n+m-3; i++){     // -3 pq comeca a contar a partir da diagonal da 2 linha
-        for (int j=0; j<m; j++){    // e as diagonais sao n+m-1
+        for (int j=0; j<n; j++){    // e as diagonais sao n+m-1
             //vec[i][j] = i*m +j;
             printf("%3d ", vec[i][j]);
         }
