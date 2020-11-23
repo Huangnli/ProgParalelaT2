@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/time.h>
 
 char *aloca_sequencia(int n)
@@ -11,32 +10,32 @@ char *aloca_sequencia(int n)
 	seq = (char *) malloc((n + 1) * sizeof(char));
 	if (seq == NULL)
 	{
-		perror("\nErro na alocação de estruturas\n") ;
+		printf("\nErro na alocação de estruturas\n") ;
 		exit(1) ;
 	}
 	return seq;
 }
 
-int *aloca_matriz(int totalMatriz)
+int *aloca_matriz(int n)
 {
-	int *mat;
+	int *seq;
 
-	mat = (int *) malloc((totalMatriz) * sizeof(int));
-	if (mat == NULL)
+	seq = (int *) malloc((n) * sizeof(int));
+	if (seq == NULL)
 	{
-		perror("\nErro na alocação de estruturas\n") ;
+		printf("\nErro na alocação de estruturas\n") ;
 		exit(1) ;
 	}
-	return mat;
+	return seq;
 }
 
 void distancia_edicao(int n, int m, char *s, char *r, int *d)
 {
 	int nADiag,			// Número de anti-diagonais
-		tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
-		aD,				// Anti-diagonais numeradas de 2 a nADiag + 1
-		k, i, j,
-		t, a, b, c, min;
+		 tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
+		 aD,				// Anti-diagonais numeradas de 2 a nADiag + 1
+		 k, i, j,
+		 t, a, b, c, min;
 
 	nADiag = n + m - 1;
 	tamMaxADiag = n;
@@ -51,53 +50,73 @@ void distancia_edicao(int n, int m, char *s, char *r, int *d)
 			i = n - k;
 			j = aD - i;
 			
-			// Se é uma célula válida
+			// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
 			if (j > 0 && j <= m)
 			{
 				t = (s[i] != r[j] ? 1 : 0);
-				a = d[i][j-1] + 1;
-				b = d[i-1][j] + 1;
-				c = d[i-1][j-1] + t;
-				// Calcula d[i][j] = min(a, b, c)
+				a = d[(i*(m+1)) + j-1] + 1; 
+				b = d[(i-1)*(m+1) + j] + 1;
+				c = d[(i-1)*(m+1) + j-1] + t;
+				// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 				if (a < b)
 					min = a;
 				else
 					min = b;
 				if (c < min)
 					min = c;
-				d[i][j] = min;
+				d[(i*(m+1)) + j] = min;
 			}
 		}
 	}
+	//imprimir a matriz d
+	for(int i = 0; i <= n; i++)
+	{
+        for (int j = 0; j <= m; j++)
+		{
+            printf("%3d ", d[(i*(m+1))+j]);
+        }
+        printf("\n");
+    }
 }
 
 void libera(int n, char *s, char *r, int *d)
 {
-	int i;
-
 	free(s);
 	free(r);
 	free(d);
 }
 
-__global__ void diagonal_Par(int *d, int *tamanho){
-	int idGlobal = blockIdx.x * blockDim.x + threadIdx.x;
+//----------------------------------------------
+__global__ void distancia(int *d, int n, int m, int i){
+	
+	int posi;
+	int cima, diag, atras;
+	__syncthreads();
+	
+	if (i >= n){
+		posi = (i*m) - ( (i-n-1) * (m-1) ); 
+		posi = posi  - threadIdx.x * (m-1);
+	}
 
+	else
+		posi = i*m - threadIdx.x*(m-1);
 
-	return;
+	atras = posi -1;
+	cima  = posi - m;
+	diag  = posi - (m+1);
+
+	printf("%d %d %d\n ", atras, cima, diag);
 }
 
 int main(int argc, char **argv)
 {
-	int  n,		// Tamanho da sequência s
-		 m,		// Tamanho da sequência r
+	int n,	// Tamanho da sequência s
+		 m,	// Tamanho da sequência r
 		 *d,	// Matriz de distâncias com tamanho (n+1)*(m+1)
 		 i, j;
 	char *s,	// Sequência s de entrada (vetor com tamanho n+1)
-		 *r;	// Sequência r de entrada (vetor com tamanho m+1)
+		  *r;	// Sequência r de entrada (vetor com tamanho m+1)
 	FILE *arqEntrada ;	// Arquivo texto de entrada
-
-	int *d_m;
 
 	if(argc != 2)
 	{
@@ -137,27 +156,31 @@ int main(int argc, char **argv)
 	gettimeofday(&h_ini, 0);
 
 	// Inicializa matriz de distâncias d
-	for (i = 0; i <= n; i++)
+	for (i = 0; i <= m; i++)
 	{
         d[i] = i;
     }
     
-    for (j = 1; j <= m; j++)
+    for (j = 1; j <= n; j++)
 	{
 		d[(m*j)+j] = j;
 	}
 
-	cudaMalloc((void **) &d_m, sizeof(int) * n*m);
-	cudaMemcpy(d_m, d, sizeof(d), cudaMemcpyHostToDevice);
-	int *max;
-	*max = sizeof(int) *n*m;
-
-	// numero de blocos == sequencia S 
-	diagonal_Par <<<n, 512 >>>(d_m, max);
 	
-
+	
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	distancia_edicao(n, m, s, r, d);
+	/*** Criando vars para a GPU ***/
+	int *d_M;
+
+	cudaMalloc((void**)&d_M, sizeof(int)* ((n+1)*(m+1)));
+
+	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
+
+	//for(int i=0; i<n+m-1; i++){
+		distancia<<< 1, m>>>(d_M, n, m, i);
+	//}
+	cudaDeviceSynchronize();
 
 	gettimeofday(&h_fim, 0);
 	// Tempo de execução na CPU em milissegundos
@@ -165,7 +188,7 @@ int main(int argc, char **argv)
 	long microsegundos = h_fim.tv_usec - h_ini.tv_usec;
 	double tempo = (segundos * 1e3) + (microsegundos * 1e-3);
 
-	printf("Distância=%d\n", d[n][m]);
+	printf("Distância=%d\n", d[((n+1)*(m+1))-1]);
 	printf("Tempo CPU = %.2fms\n", tempo);
 
 	// Libera vetores s e r e matriz d
