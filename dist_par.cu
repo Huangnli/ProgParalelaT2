@@ -46,55 +46,55 @@ int *aloca_matriz(int n)
 	return seq;
 }
 
-void distancia_edicao(int n, int m, char *s, char *r, int *d)
-{
-	int nADiag,			// Número de anti-diagonais
-		 tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
-		 aD,				// Anti-diagonais numeradas de 2 a nADiag + 1
-		 k, i, j,
-		 t, a, b, c, min;
+// void distancia_edicao(int n, int m, char *s, char *r, int *d)
+// {
+// 	int nADiag,			// Número de anti-diagonais
+// 		 tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
+// 		 aD,				// Anti-diagonais numeradas de 2 a nADiag + 1
+// 		 k, i, j,
+// 		 t, a, b, c, min;
 
-	nADiag = n + m - 1;
-	tamMaxADiag = n;
+// 	nADiag = n + m - 1;
+// 	tamMaxADiag = n;
 
-	// Para cada anti-diagonal
-	for (aD = 2; aD <= nADiag + 1; aD++)
-	{
-		// Para cada célula da anti-diagonal aD
-		for (k = 0; k < tamMaxADiag; k++)
-		{
-			// Calcula índices i e j da célula (linha e coluna)
-			i = n - k;
-			j = aD - i;
+// 	// Para cada anti-diagonal
+// 	for (aD = 2; aD <= nADiag + 1; aD++)
+// 	{
+// 		// Para cada célula da anti-diagonal aD
+// 		for (k = 0; k < tamMaxADiag; k++)
+// 		{
+// 			// Calcula índices i e j da célula (linha e coluna)
+// 			i = n - k;
+// 			j = aD - i;
 			
-			// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
-			if (j > 0 && j <= m)
-			{
-				t = (s[i] != r[j] ? 1 : 0);
-				a = d[(i*(m+1)) + j-1] + 1; 
-				b = d[(i-1)*(m+1) + j] + 1;
-				c = d[(i-1)*(m+1) + j-1] + t;
-				// Calcula d[(i*(m+1)) + j] = min(a, b, c)
-				if (a < b)
-					min = a;
-				else
-					min = b;
-				if (c < min)
-					min = c;
-				d[(i*(m+1)) + j] = min;
-			}
-		}
-	}
-	//imprimir a matriz d
-	// for(int i = 0; i <= n; i++)
-	// {
-    //     for (int j = 0; j <= m; j++)
-	// 	{
-    //         printf("%3d ", d[(i*(m+1))+j]);
-    //     }
-    //     printf("\n");
-    // }
-}
+// 			// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
+// 			if (j > 0 && j <= m)
+// 			{
+// 				t = (s[i] != r[j] ? 1 : 0);
+// 				a = d[(i*(m+1)) + j-1] + 1; 
+// 				b = d[(i-1)*(m+1) + j] + 1;
+// 				c = d[(i-1)*(m+1) + j-1] + t;
+// 				// Calcula d[(i*(m+1)) + j] = min(a, b, c)
+// 				if (a < b)
+// 					min = a;
+// 				else
+// 					min = b;
+// 				if (c < min)
+// 					min = c;
+// 				d[(i*(m+1)) + j] = min;
+// 			}
+// 		}
+// 	}
+// 	//imprimir a matriz d
+// 	// for(int i = 0; i <= n; i++)
+// 	// {
+//     //     for (int j = 0; j <= m; j++)
+// 	// 	{
+//     //         printf("%3d ", d[(i*(m+1))+j]);
+//     //     }
+//     //     printf("\n");
+//     // }
+// }
 
 void libera(int n, char *s, char *r, int *d)
 {
@@ -130,14 +130,19 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	if ((d[posi] == 0 && posi > 0) && posi <= (n+1)*(m+1))
 	{
 		linha = (posi/(m+1));
-		coluna = d[posi - ((m+1)*linha)];
+		coluna = posi - ((m+1)*linha);
+		//coluna = posi%(m+1); //((m+1)*linha);
+
 
 		printf("Linha: %d coluna: %d posi: %d\n", linha, coluna, posi);
+		// printf("%c<-- ashdashd\n", s[4]);
 		
 		t = (s[linha] != r[coluna] ? 1 : 0);
 		a = d[atras] + 1; 
 		b = d[cima] + 1;
 		c = d[diag] + t;
+		// printf("s=%c r=%c\n", s[linha], r[coluna]);
+		// printf("a=%d b=%d c=%d t=%d!!!!!!!!!!\n", a,b,c, t);
 		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 		if (a < b)
 			min = a;
@@ -145,6 +150,7 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 			min = b;
 		if (c < min)
 			min = c;
+
 		d[posi] = min;
 		
 		//printf("valores comp:%d %d %d  posi:%d no vetor %d\n", d[atras], d[cima], d[diag], d[posi], posi);
@@ -192,6 +198,7 @@ int main(int argc, char **argv)
 	r[0] = ' ';
 	fscanf(arqEntrada, "%s", &(s[1])) ;
 	fscanf(arqEntrada, "%s", &(r[1])) ;
+	// printf("STRING S->> %c", s[4]);
 	
 	// Fecha arquivo de entrada
 	fclose(arqEntrada) ;
@@ -225,12 +232,12 @@ int main(int argc, char **argv)
 	char *d_s, *d_r;
 
 	cudaMalloc((void**)&d_M, sizeof(int)* ((n+1)*(m+1)));
-	cudaMalloc((void **)&d_s, sizeof(char) * n);
-	cudaMalloc((void **)&d_r, sizeof(char) * m);
+	cudaMalloc((void **)&d_s, sizeof(char) * (n+1));
+	cudaMalloc((void **)&d_r, sizeof(char) * (m+1));
 
 	cudaMemcpy(d_M, d, sizeof(int)  * ((n+1)*(m+1)), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_s, s, sizeof(char) * n, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_r, r, sizeof(char) * m, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_s, s, sizeof(char) * (n+1), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_r, r, sizeof(char) * (m+1), cudaMemcpyHostToDevice);
 
 	for(int i=0; i<n+m+1; i++){
 		distancia<<< 1, n>>>(d_M, n, m, i, d_s, d_r);
