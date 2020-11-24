@@ -87,7 +87,7 @@ void libera(int n, char *s, char *r, int *d)
 }
 
 //----------------------------------------------
-__global__ void distancia(int *d, int n, int m, int i){
+__global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	
 	int posi;
 	int cima, diag, atras;
@@ -104,6 +104,23 @@ __global__ void distancia(int *d, int n, int m, int i){
 	atras = posi -1;
 	cima  = posi - m;
 	diag  = posi - (m+1);
+
+	// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
+	if (d[posi] != 0 && posi > 0 && posi <= m)
+	{
+		t = (s[i] != r[j] ? 1 : 0);
+		a = d[atras] + 1; 
+		b = d[cima] + 1;
+		c = d[(diag] + t;
+		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
+		if (a < b)
+			min = a;
+		else
+			min = b;
+		if (c < min)
+			min = c;
+		d[(posi] = min;
+	}
 
 	printf("%d %d %d\n ", atras, cima, diag);
 }
