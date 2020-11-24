@@ -86,14 +86,14 @@ void distancia_edicao(int n, int m, char *s, char *r, int *d)
 		}
 	}
 	//imprimir a matriz d
-	for(int i = 0; i <= n; i++)
-	{
-        for (int j = 0; j <= m; j++)
-		{
-            printf("%3d ", d[(i*(m+1))+j]);
-        }
-        printf("\n");
-    }
+	// for(int i = 0; i <= n; i++)
+	// {
+    //     for (int j = 0; j <= m; j++)
+	// 	{
+    //         printf("%3d ", d[(i*(m+1))+j]);
+    //     }
+    //     printf("\n");
+    // }
 }
 
 void libera(int n, char *s, char *r, int *d)
@@ -111,6 +111,7 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	int linha, coluna;
 	__syncthreads();
 	
+	// Pegando cada cel para cada thread
 	if (i >= n){
 		posi = (i*(m+1)) - ( (i-n) * (m) ); 
 		posi = posi  - threadIdx.x * (m) ;
@@ -126,15 +127,18 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	printf(" posi: %2d\n", posi);
 
 	// Se é uma célula válida
-	if (d[posi] != 0 && posi > 0 && posi <= m)
+	if ((d[posi] == 0 && posi > 0) && posi <= (n+1)*(m+1))
 	{
-		linha = (posi/m+1);
+		linha = (posi/(m+1));
 		coluna = d[posi - ((m+1)*linha)];
+
+		printf("Linha: %d coluna: %d posi: %d\n", linha, coluna, posi);
+		
 		t = (s[linha] != r[coluna] ? 1 : 0);
 		a = d[atras] + 1; 
 		b = d[cima] + 1;
 		c = d[diag] + t;
-		// Calcula min(a, b, c)
+		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 		if (a < b)
 			min = a;
 		else
@@ -142,9 +146,10 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 		if (c < min)
 			min = c;
 		d[posi] = min;
+		
+		//printf("valores comp:%d %d %d  posi:%d no vetor %d\n", d[atras], d[cima], d[diag], d[posi], posi);
 	}
 
-	printf("%d %d %d\n ", atras, cima, diag);
 }
 
 int main(int argc, char **argv)
@@ -205,6 +210,15 @@ int main(int argc, char **argv)
 		d[(m*j)+j] = j;
 	}
 
+	// for(int i = 0; i <= n; i++)
+	// {
+    //     for (int j = 0; j <= m; j++)
+	// 	{
+    //         printf("%3d ", i*(m+1)+j);
+    //     }
+    //     printf("\n");
+    // }
+
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	/*** Criando vars para a GPU ***/
 	int *d_M;
@@ -223,6 +237,18 @@ int main(int argc, char **argv)
 	}
 
 	cudaDeviceSynchronize();
+
+	cudaMemcpy( d, d_M, sizeof(int)  * ((n+1)*(m+1)), cudaMemcpyDeviceToHost);
+
+	// for(int i = 0; i <= n; i++)
+	// {
+    //     for (int j = 0; j <= m; j++)
+	// 	{
+    //         printf("%3d ", d[(i*(m+1))+j]);
+    //     }
+    //     printf("\n");
+    // }
+
 
 	gettimeofday(&h_fim, 0);
 	// Tempo de execução na CPU em milissegundos
