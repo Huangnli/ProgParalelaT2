@@ -125,16 +125,16 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	printf("Para cada i=%d  m=%d\n", i, m);
 	printf(" posi: %2d\n", posi);
 
-	// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
+	// Se é uma célula válida
 	if (d[posi] != 0 && posi > 0 && posi <= m)
 	{
 		linha = (posi/m+1);
 		coluna = d[posi - ((m+1)*linha)];
 		t = (s[linha] != r[coluna] ? 1 : 0);
-		a = d[(i*(m+1)) + j-1] + 1; 
-		b = d[(i-1)*(m+1) + j] + 1;
-		c = d[(i-1)*(m+1) + j-1] + t;
-		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
+		a = d[atras] + 1; 
+		b = d[cima] + 1;
+		c = d[diag] + t;
+		// Calcula min(a, b, c)
 		if (a < b)
 			min = a;
 		else
@@ -214,13 +214,9 @@ int main(int argc, char **argv)
 	cudaMalloc((void **)&d_s, sizeof(char) * n);
 	cudaMalloc((void **)&d_r, sizeof(char) * m);
 
-
 	cudaMemcpy(d_M, d, sizeof(int)  * ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 	cudaMemcpy(d_s, s, sizeof(char) * n, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_r, r, sizeof(char) * m, cudaMemcpyHostToDevice);
-	
-
-
 
 	for(int i=0; i<n+m+1; i++){
 		distancia<<< 1, n>>>(d_M, n, m, i, d_s, d_r);
