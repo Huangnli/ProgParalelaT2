@@ -95,16 +95,19 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	__syncthreads();
 	
 	if (i >= n){
-		posi = (i*m) - ( (i-n-1) * (m-1) ); 
-		posi = posi  - threadIdx.x * (m-1);
-	}
+		posi = (i*(m+1)) - ( (i-n) * (m) ); 
+		posi = posi  - threadIdx.x * (m) ;
+	}		
 
 	else
-		posi = i*m - threadIdx.x*(m-1);
+		posi = i*(m+1) - threadIdx.x*(m) + m+2;
 
 	atras = posi - 1;
 	cima  = posi - (m+1);
 	diag  = posi - (m+2);
+
+	printf("Para cada i=%d  m=%d\n", i, m);
+	printf(" posi: %2d\n", posi);
 
 	// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
 	if (d[posi] != 0 && posi > 0 && posi <= m)
