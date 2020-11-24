@@ -89,7 +89,7 @@ void libera(int n, char *s, char *r, int *d)
 //----------------------------------------------
 __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	
-	int posi;
+	int posi, t, a, b, c, min;
 	int cima, diag, atras;
 	__syncthreads();
 	
@@ -109,9 +109,9 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	if (d[posi] != 0 && posi > 0 && posi <= m)
 	{
 		t = (s[i] != r[j] ? 1 : 0);
-		a = d[atras] + 1; 
-		b = d[cima] + 1;
-		c = d[(diag] + t;
+		a = d[(i*(m+1)) + j-1] + 1; 
+		b = d[(i-1)*(m+1) + j] + 1;
+		c = d[(i-1)*(m+1) + j-1] + t;
 		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 		if (a < b)
 			min = a;
@@ -119,7 +119,7 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 			min = b;
 		if (c < min)
 			min = c;
-		d[(posi] = min;
+		d[posi] = min;
 	}
 
 	printf("%d %d %d\n ", atras, cima, diag);
