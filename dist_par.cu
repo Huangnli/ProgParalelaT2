@@ -194,14 +194,24 @@ int main(int argc, char **argv)
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	/*** Criando vars para a GPU ***/
 	int *d_M;
+	char *d_s, *d_r;
 
 	cudaMalloc((void**)&d_M, sizeof(int)* ((n+1)*(m+1)));
+	cudaMalloc((void **)&d_s, sizeof(char) * n);
+	cudaMalloc((void **)&d_r, sizeof(char) * m);
 
-	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 
-	for(int i=0; i<n+m-1; i++){
-		distancia<<< 1, n>>>(d_M, n, m, i);
+	cudaMemcpy(d_M, d, sizeof(int)  * ((n+1)*(m+1)), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_s, s, sizeof(char) * n, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_r, r, sizeof(char) * m, cudaMemcpyHostToDevice);
+	
+
+
+
+	for(int i=0; i<n+m+1; i++){
+		distancia<<< 1, n>>>(d_M, n, m, i, d_s, d_r);
 	}
+	
 	cudaDeviceSynchronize();
 
 	gettimeofday(&h_fim, 0);
