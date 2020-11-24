@@ -87,45 +87,26 @@ void libera(int n, char *s, char *r, int *d)
 }
 
 //----------------------------------------------
-__global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
+__global__ void distancia(int *d, int n, int m, int i){
 	
-	int posi, t, a, b, c, min;
+	int posi;
 	int cima, diag, atras;
-	int linha, coluna;
 	__syncthreads();
 	
 	if (i >= n){
-		posi = (i*m) - ( (i-n-1) * (m-1) ); 
-		posi = posi  - threadIdx.x * (m-1);
+		posi = (i*(m+1)) - ( (i-n) * (m) ); 
+		posi = posi  - threadIdx.x * (m) ;
 	}
 
 	else
-		posi = i*m - threadIdx.x*(m-1);
+		posi = i*(m+1) - threadIdx.x*(m) + m+2;
 
-	atras = posi - 1;
+	atras = posi -1;
 	cima  = posi - (m+1);
 	diag  = posi - (m+2);
 
-	// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
-	if (d[posi] != 0 && posi > 0 && posi <= m)
-	{
-		linha = (posi/m+1);
-		coluna = d[posi - ((m+1)*linha)];
-		t = (s[linha] != r[coluna] ? 1 : 0);
-		a = d[(i*(m+1)) + j-1] + 1; 
-		b = d[(i-1)*(m+1) + j] + 1;
-		c = d[(i-1)*(m+1) + j-1] + t;
-		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
-		if (a < b)
-			min = a;
-		else
-			min = b;
-		if (c < min)
-			min = c;
-		d[posi] = min;
-	}
-
-	printf("%d %d %d\n ", atras, cima, diag);
+	printf("Para cada i=%d  m=%d\n", i, m);
+	printf(" posi: %2d\n", posi);
 }
 
 int main(int argc, char **argv)
@@ -189,6 +170,25 @@ int main(int argc, char **argv)
 	
 	
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
+	distancia_edicao(n, m, s, r, d);
+
+	printf("\n");
+	printf("\n");
+
+
+	for(int i = 0; i <= n; i++)
+	{
+        for (int j = 0; j <= m; j++)
+		{
+            printf("%3d ", (i*(m+1))+j);
+        }
+        printf("\n");
+	}
+	
+	printf("\n");
+
+
+
 	/*** Criando vars para a GPU ***/
 	int *d_M;
 
@@ -196,8 +196,10 @@ int main(int argc, char **argv)
 
 	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 
-	for(int i=0; i<n+m-1; i++){
+	// antes n+m-1
+	for(int i=0; i<n+m+1; i++){
 		distancia<<< 1, n>>>(d_M, n, m, i);
+		printf("\n");
 	}
 	cudaDeviceSynchronize();
 
