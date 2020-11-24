@@ -169,7 +169,6 @@ int main(int argc, char **argv)
 	
 	
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
-	distancia_edicao(n, m, s, r, d);
 	/*** Criando vars para a GPU ***/
 	int *d_M;
 
@@ -177,9 +176,9 @@ int main(int argc, char **argv)
 
 	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 
-	//for(int i=0; i<n+m-1; i++){
+	for(int i=0; i<n+m-1; i++){
 		distancia<<< 1, m>>>(d_M, n, m, i);
-	//}
+	}
 	cudaDeviceSynchronize();
 
 	gettimeofday(&h_fim, 0);
