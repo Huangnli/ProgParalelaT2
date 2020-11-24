@@ -1,3 +1,20 @@
+/**
+ * Trabalho 2
+ * 
+ * Comando de compilação: 
+ * nvcc dist_par.cu -o dist_par
+ * Comando de execução :
+ * ./dist_par entrada.txt
+ * 
+ * @file dist_par.cu
+ * @author João Víctor Zárate, Julio Huang, Ricardo Abreu
+ * @brief Trabalho 2 - Progrmação Paralela
+ * @version 1.0
+ * @date 2020-11-23
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +115,6 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 		posi = (i*(m+1)) - ( (i-n) * (m) ); 
 		posi = posi  - threadIdx.x * (m) ;
 	}		
-
 	else
 		posi = i*(m+1) - threadIdx.x*(m) + m+2;
 
@@ -189,8 +205,6 @@ int main(int argc, char **argv)
 		d[(m*j)+j] = j;
 	}
 
-	
-	
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	/*** Criando vars para a GPU ***/
 	int *d_M;
@@ -199,8 +213,8 @@ int main(int argc, char **argv)
 
 	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 
-	for(int i=0; i<n+m-1; i++){
-		distancia<<< 1, n>>>(d_M, n, m, i);
+	for(int i = 0; i < n+m+1; i++){
+		distancia<<< 1, n>>>(d_M, n, m, i, s, r);
 	}
 	cudaDeviceSynchronize();
 
