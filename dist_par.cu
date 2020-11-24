@@ -91,6 +91,7 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	
 	int posi, t, a, b, c, min;
 	int cima, diag, atras;
+	int linha, coluna;
 	__syncthreads();
 	
 	if (i >= n){
@@ -101,14 +102,16 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 	else
 		posi = i*m - threadIdx.x*(m-1);
 
-	atras = posi -1;
-	cima  = posi - m;
-	diag  = posi - (m+1);
+	atras = posi - 1;
+	cima  = posi - (m+1);
+	diag  = posi - (m+2);
 
 	// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
 	if (d[posi] != 0 && posi > 0 && posi <= m)
 	{
-		t = (s[i] != r[j] ? 1 : 0);
+		linha = (posi/m+1);
+		coluna = d[posi - ((m+1)*linha)];
+		t = (s[linha] != r[coluna] ? 1 : 0);
 		a = d[(i*(m+1)) + j-1] + 1; 
 		b = d[(i-1)*(m+1) + j] + 1;
 		c = d[(i-1)*(m+1) + j-1] + t;
@@ -194,7 +197,7 @@ int main(int argc, char **argv)
 	cudaMemcpy(d_M, d, sizeof(int)* ((n+1)*(m+1)), cudaMemcpyHostToDevice);
 
 	for(int i=0; i<n+m-1; i++){
-		distancia<<< 1, m>>>(d_M, n, m, i);
+		distancia<<< 1, n>>>(d_M, n, m, i);
 	}
 	cudaDeviceSynchronize();
 
