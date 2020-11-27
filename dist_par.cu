@@ -5,6 +5,8 @@
  * nvcc dist_par.cu -o dist_par
  * Comando de execução :
  * ./dist_par entrada.txt
+ *
+ * O programa implementa apenas a solução inicial.
  * 
  * @file dist_par.cu
  * @author João Víctor Zárate, Julio Huang, Ricardo Abreu
@@ -45,56 +47,6 @@ int *aloca_matriz(int n)
 	}
 	return seq;
 }
-
-// void distancia_edicao(int n, int m, char *s, char *r, int *d)
-// {
-// 	int nADiag,			// Número de anti-diagonais
-// 		 tamMaxADiag,	// Tamanho máximo (número máximo de células) da anti-diagonal
-// 		 aD,				// Anti-diagonais numeradas de 2 a nADiag + 1
-// 		 k, i, j,
-// 		 t, a, b, c, min;
-
-// 	nADiag = n + m - 1;
-// 	tamMaxADiag = n;
-
-// 	// Para cada anti-diagonal
-// 	for (aD = 2; aD <= nADiag + 1; aD++)
-// 	{
-// 		// Para cada célula da anti-diagonal aD
-// 		for (k = 0; k < tamMaxADiag; k++)
-// 		{
-// 			// Calcula índices i e j da célula (linha e coluna)
-// 			i = n - k;
-// 			j = aD - i;
-			
-// 			// Se é uma célula válida //Obs: d[(i*(m+1)) + j] == d[i][j]
-// 			if (j > 0 && j <= m)
-// 			{
-// 				t = (s[i] != r[j] ? 1 : 0);
-// 				a = d[(i*(m+1)) + j-1] + 1; 
-// 				b = d[(i-1)*(m+1) + j] + 1;
-// 				c = d[(i-1)*(m+1) + j-1] + t;
-// 				// Calcula d[(i*(m+1)) + j] = min(a, b, c)
-// 				if (a < b)
-// 					min = a;
-// 				else
-// 					min = b;
-// 				if (c < min)
-// 					min = c;
-// 				d[(i*(m+1)) + j] = min;
-// 			}
-// 		}
-// 	}
-// 	//imprimir a matriz d
-// 	// for(int i = 0; i <= n; i++)
-// 	// {
-//     //     for (int j = 0; j <= m; j++)
-// 	// 	{
-//     //         printf("%3d ", d[(i*(m+1))+j]);
-//     //     }
-//     //     printf("\n");
-//     // }
-// }
 
 void libera(int n, char *s, char *r, int *d)
 {
@@ -141,8 +93,7 @@ __global__ void distancia(int *d, int n, int m, int i, char *s, char *r){
 		a = d[atras] + 1; 
 		b = d[cima] + 1;
 		c = d[diag] + t;
-		// printf("s=%c r=%c\n", s[linha], r[coluna]);
-		// printf("a=%d b=%d c=%d t=%d!!!!!!!!!!\n", a,b,c, t);
+
 		// Calcula d[(i*(m+1)) + j] = min(a, b, c)
 		if (a < b)
 			min = a;
@@ -217,15 +168,6 @@ int main(int argc, char **argv)
 		d[(m*j)+j] = j;
 	}
 
-	// for(int i = 0; i <= n; i++)
-	// {
-    //     for (int j = 0; j <= m; j++)
-	// 	{
-    //         printf("%3d ", i*(m+1)+j);
-    //     }
-    //     printf("\n");
-    // }
-
 	// Calcula distância de edição entre sequências s e r, por anti-diagonais
 	/*** Criando vars para a GPU ***/
 	int *d_M;
@@ -246,16 +188,6 @@ int main(int argc, char **argv)
 	cudaDeviceSynchronize();
 
 	cudaMemcpy( d, d_M, sizeof(int)  * ((n+1)*(m+1)), cudaMemcpyDeviceToHost);
-
-	// for(int i = 0; i <= n; i++)
-	// {
-    //     for (int j = 0; j <= m; j++)
-	// 	{
-    //         printf("%3d ", d[(i*(m+1))+j]);
-    //     }
-    //     printf("\n");
-    // }
-
 
 	gettimeofday(&h_fim, 0);
 	// Tempo de execução na CPU em milissegundos
